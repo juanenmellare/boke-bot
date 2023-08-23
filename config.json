@@ -1,0 +1,14 @@
+{
+  "match": {
+    "eNid": "",
+    "selectedGrandstands": ["F", "G", "H", "I", "J", "SCD", "SCI", "SAD", "SAC", "SAI", "SBD", "SBC", "SBI", "SDD", "SDI"]
+  },
+  "requests": {
+    "grandstandsRefreshRate": 1,
+    "secondsTimeout": 4,
+    "queueRefreshRate": 60,
+    "userAgent": "",
+    "token": ""
+  },
+  "successSongFile": "dale_boca.mp3"
+}
