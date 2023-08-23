@@ -1,6 +1,5 @@
 # Boke Bot 
 
----
 ## Requirements
 
 - Python 3.11 or higher (https://www.python.org/downloads/)
