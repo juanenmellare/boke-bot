@@ -122,8 +122,8 @@ def find_available_grandstand_id():
             time.sleep(queue_refresh_rate)
             continue
         elif '<!-- plano bombonera -->' not in grandstands_response.text:
-            log_error("Page stadium not founded, update the token or check the response below to analyze if the "
-                      "webpage has any update...")
+            log_error("Page stadium not found, update the token of config.js or check the response below to analyze "
+                      "if the webpage has any update...")
             log_error(str(grandstands_response.content))
             log_vamo_boke_and_close()
 
