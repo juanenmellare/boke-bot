@@ -156,8 +156,8 @@ def find_available_seat_id(es_nid):
             break
     except Exception as error:
         log_error("Something happened while processing the seat...")
-        log_error(error)
         log_error(str(available_seats))
+        log_error(str(error))
         log_vamo_boke_and_close()
 
     log_progress('Seat available...')
