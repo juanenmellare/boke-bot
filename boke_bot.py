@@ -6,6 +6,7 @@ import requests
 import signal
 from datetime import datetime
 import os
+
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 
@@ -13,8 +14,7 @@ import pygame
 def handler(signum, frame):
     res = input('\n' + get_current_time_for_log() + 'Do you want to exit? y/n... ')
     if res == 'y':
-        log_vamo_boke()
-        exit(1)
+        log_vamo_boke_and_close(0)
 
 
 signal.signal(signal.SIGINT, handler)
@@ -68,6 +68,10 @@ def build_session():
     return session_candidate
 
 
+def wait_grandstand_refresh_rate():
+    time.sleep(grandstands_refresh_rate)
+
+
 def find_es_nid(grandstands_response_text):
     es_nid = None
     available_grandstands = re.findall("(?<=enableSection\", ).*?(?=\))", grandstands_response_text)
@@ -91,7 +95,7 @@ def find_es_nid(grandstands_response_text):
     return es_nid
 
 
-def find_grandstand_es_nid():
+def find_available_grandstand_id():
     es_nid = None
     timeout = seconds_timeout
     has_found_empty_seat_in_grandstand = False
@@ -106,34 +110,37 @@ def find_grandstand_es_nid():
             log_warning(
                 'Something happened while trying to get the grandstands, in {0} seconds will try again with a '
                 'timeout of {1} seconds...'.format(str(grandstands_refresh_rate), str(timeout)))
-            time.sleep(grandstands_refresh_rate)
+            wait_grandstand_refresh_rate()
             continue
 
         if 'FILA DE ESPERA' in grandstands_response.text:
             log('In the queue, after ' + str(queue_refresh_rate) + ' seconds will retry...')
-            log(str(grandstands_response.content))
             time.sleep(queue_refresh_rate)
             continue
         elif '<!-- plano bombonera -->' not in grandstands_response.text:
             log_error("Page stadium not founded, update the token or check the response below to analyze if the "
                       "webpage has any update...")
-            log(str(grandstands_response.content))
-            log_vamo_boke()
-            exit()
+            log_warning(str(grandstands_response.content))
+            log_vamo_boke_and_close(1)
 
         timeout = seconds_timeout
         es_nid = find_es_nid(grandstands_response.text)
         if es_nid is None:
-            time.sleep(grandstands_refresh_rate)
+            wait_grandstand_refresh_rate()
         else:
             has_found_empty_seat_in_grandstand = True
 
     return es_nid
 
 
-def find_available_seat_id(seats_response_text):
-    available_seats = re.findall("(?<=updateLocation\", ).*?(?=\))", seats_response_text)
-    if not len(available_seats):
+def find_available_seat_id(es_nid):
+    seats_url_with_es_nid = seats_url + es_nid
+    seats_response = session.get(url=seats_url_with_es_nid, cookies=cookies, headers=headers)
+
+    available_seats = re.findall("(?<=updateLocation\", ).*?(?=\))", seats_response.text)
+    if not available_seats:
+        log_warning("Seat already taken...")
+        wait_grandstand_refresh_rate()
         return None
 
     seat_id = None
@@ -141,6 +148,13 @@ def find_available_seat_id(seats_response_text):
         raw_available_seat = availableSeat.replace(' ', '').split(',')
         seat_id = raw_available_seat[2]
         break
+
+    if seat_id is None:
+        log_error("Something happened while processing the seat...")
+        log_error(str(available_seats))
+        log_vamo_boke_and_close(1)
+
+    log_progress('Seat available...')
 
     return seat_id
 
@@ -165,8 +179,33 @@ def post_reserve_seat(seat_id):
     return post_sells_api('reservar_ubicacion', seat_id)
 
 
+def reserve_seat(seat_id):
+    reserved_seat_json = post_reserve_seat(seat_id)
+    if reserved_seat_json is None:
+        return False
+
+    result = reserved_seat_json['resultado']
+    if result == 'OK':
+        log_success('Seat reserved successfully!')
+        return True
+
+    if result == 'ERROR':
+        description_error = reserved_seat_json['descripcionError']
+        log_warning('Something happened while trying to reserve. Boca Message: "' + description_error + '"')
+        wait_grandstand_refresh_rate()
+        return False
+
+    log_error('Unexpected post_reserve_seat response: ' + str(reserved_seat_json))
+    log_vamo_boke_and_close(1)
+
+
 def log_vamo_boke():
     log_boca('======================= Vamo\' Boke! =======================')
+
+
+def log_vamo_boke_and_close(code):
+    log_vamo_boke()
+    exit(code)
 
 
 def play_song():
@@ -184,35 +223,12 @@ def play_song():
 
 
 def run_bot():
-    seat_reserved = False
-    while not seat_reserved:
-        grandstand_es_nid = find_grandstand_es_nid()
-        full_seats_url = seats_url + grandstand_es_nid
-        seats_response = session.get(url=full_seats_url, cookies=cookies, headers=headers)
-        available_seat_id = find_available_seat_id(seats_response.text)
-        if available_seat_id is None:
-            log_warning("Seat already taken...")
-            time.sleep(grandstands_refresh_rate)
-            continue
-
-        log_progress('Seat available...')
-
-        reserved_seat_json = post_reserve_seat(available_seat_id)
-        if reserved_seat_json is None:
-            log_warning('Starting again...')
-            continue
-
-        result = reserved_seat_json['resultado']
-        if result == 'ERROR':
-            log_warning('Something happened while trying to reserve. Boca Message: "' +
-                        reserved_seat_json['descripcionError'] + '"')
-            log_warning('Starting again...')
-            continue
-
-        if result == 'OK':
-            log_success('Seat reserved successfully!')
-            log(full_seats_url)
-            seat_reserved = True
+    is_seat_reserved = False
+    while not is_seat_reserved:
+        available_grandstand_id = find_available_grandstand_id()
+        available_seat_id = find_available_seat_id(available_grandstand_id)
+        if available_seat_id is not None:
+            is_seat_reserved = reserve_seat(available_seat_id)
 
 
 if __name__ == '__main__':
@@ -224,8 +240,7 @@ if __name__ == '__main__':
     e_nid = match_config['eNid']
     if not e_nid:
         log_error('Missing "eNid" value in the match config.json')
-        log_vamo_boke()
-        exit()
+        log_vamo_boke_and_close(0)
 
     selected_grandstands = match_config['selectedGrandstands']
 
@@ -243,9 +258,8 @@ if __name__ == '__main__':
     token = requests_config['token']
     if not token:
         log_error('Missing "token" value in the request config.json')
-        log_vamo_boke()
-        exit()
-    
+        log_vamo_boke_and_close(0)
+
     cookies = {
         "firstSessionLogin": "true",
         "baas": token
