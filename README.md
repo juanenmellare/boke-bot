@@ -1,5 +1,6 @@
 # Boke Bot 
 
+---
 ## Requirements
 
 - Python 3.11 or higher (https://www.python.org/downloads/)
@@ -38,7 +39,7 @@ Note: Close the terminal or press `Control + C` to stop execution.
 ```json
 {
   "match": {
-    "eNid": "",                       // The "eNid" displayed in the URL after selecting the match in the browser.
+    "eNid": "545",                       // The "eNid" displayed in the URL after selecting the match in the browser.
     "selectedGrandstands": []         // The grandstands (view HTML of the stadium) selected separated by coma, if empty includes all. e.g.: ["F", "G", "H", "I", "J", "SCD", "SCI", "SAD", "SAC", "SAI", "SBD", "SBC", "SBI", "SDD", "SDI"].
   },
   "requests": {
@@ -46,12 +47,9 @@ Note: Close the terminal or press `Control + C` to stop execution.
     "secondsTimeout": 4,              // The maximun time of response, ack.
     "queueRefreshRate": 60,           // The refresh frequency per seconds to call the queue URL.
     "userAgent": "",                  // The 'User-Agent' request header used in the browser.
-    "token": ""                       // The "baas" cookie, obtained from the cookies after log in.
+    "token": "qwqwe"                       // The "baas" cookie, obtained from the cookies after log in.
   },
   "successSongFile": "dale_boca.mp3"  // Once the seat is reserved the boke bot will play beeps per second to alert the user.
 }
 ```
----
-#### v1.0.0
-
 

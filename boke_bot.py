@@ -14,7 +14,7 @@ import pygame
 def handler(signum, frame):
     res = input('\n' + get_current_time_for_log() + 'Do you want to exit? y/n... ')
     if res == 'y':
-        log_vamo_boke_and_close(0)
+        log_vamo_boke_and_close()
 
 
 signal.signal(signal.SIGINT, handler)
@@ -125,7 +125,7 @@ def find_available_grandstand_id():
             log_error("Page stadium not founded, update the token or check the response below to analyze if the "
                       "webpage has any update...")
             log_error(str(grandstands_response.content))
-            log_vamo_boke_and_close(1)
+            log_vamo_boke_and_close()
 
         timeout = seconds_timeout
 
@@ -157,7 +157,7 @@ def find_available_seat_id(es_nid):
     if seat_id is None:
         log_error("Something happened while processing the seat...")
         log_error(str(available_seats))
-        log_vamo_boke_and_close(1)
+        log_vamo_boke_and_close()
 
     log_progress('Seat available...')
 
@@ -201,16 +201,16 @@ def reserve_seat(seat_id):
         return False
 
     log_error('Unexpected post_reserve_seat response: ' + str(reserved_seat_json))
-    log_vamo_boke_and_close(1)
+    log_vamo_boke_and_close()
 
 
 def log_vamo_boke():
     log_boca('======================= Vamo\' Boke! =======================')
 
 
-def log_vamo_boke_and_close(code):
+def log_vamo_boke_and_close():
     log_vamo_boke()
-    exit(code)
+    exit(1)
 
 
 def play_song():
@@ -237,15 +237,15 @@ def run_bot():
 
 
 if __name__ == '__main__':
-    version = 'v1.0.0'
-    log_boca('==================== BOKE BOT - ' + version + ' ====================')
+    version = 'v1.1.0'
+    log_boca('======================== BOKE BOT =========================')
     config = get_config()
 
     match_config = config['match']
     e_nid = match_config['eNid']
     if not e_nid:
         log_error('Missing "eNid" value in the match config.json')
-        log_vamo_boke_and_close(0)
+        log_vamo_boke_and_close()
 
     selected_grandstands = match_config['selectedGrandstands']
 
@@ -263,7 +263,7 @@ if __name__ == '__main__':
     token = requests_config['token']
     if not token:
         log_error('Missing "token" value in the request config.json')
-        log_vamo_boke_and_close(0)
+        log_vamo_boke_and_close()
 
     cookies = {
         "firstSessionLogin": "true",
