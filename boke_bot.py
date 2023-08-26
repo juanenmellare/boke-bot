@@ -72,6 +72,10 @@ def wait_grandstand_refresh_rate():
     time.sleep(grandstands_refresh_rate)
 
 
+def log_grandstand_available(grandstand_name):
+    log_progress('Grandstand ' + grandstand_name + ' available...')
+
+
 def find_es_nid(grandstands_response_text):
     es_nid = None
     available_grandstands = re.findall("(?<=enableSection\", ).*?(?=\))", grandstands_response_text)
@@ -83,13 +87,13 @@ def find_es_nid(grandstands_response_text):
         if selected_grandstands:
             if grandstand_name in selected_grandstands:
                 es_nid = es_nid_candidate
-                log_progress('Grandstand ' + grandstand_name + ' available...')
+                log_grandstand_available(grandstand_name)
                 break
             else:
                 log_warning('Grandstand ' + grandstand_name + ' available, but not in the selected list...')
         else:
             es_nid = es_nid_candidate
-            log_progress('Grandstand ' + grandstand_name + ' available...')
+            log_grandstand_available(grandstand_name)
             break
 
     return es_nid
@@ -120,10 +124,11 @@ def find_available_grandstand_id():
         elif '<!-- plano bombonera -->' not in grandstands_response.text:
             log_error("Page stadium not founded, update the token or check the response below to analyze if the "
                       "webpage has any update...")
-            log_warning(str(grandstands_response.content))
+            log_error(str(grandstands_response.content))
             log_vamo_boke_and_close(1)
 
         timeout = seconds_timeout
+
         es_nid = find_es_nid(grandstands_response.text)
         if es_nid is None:
             wait_grandstand_refresh_rate()
