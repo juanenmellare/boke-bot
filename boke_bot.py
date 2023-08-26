@@ -36,19 +36,19 @@ def log(message):
 
 
 def log_warning(message):
-    __base_log('\033[1;93m', message)
+    __base_log('\033[0;93m', message)
 
 
 def log_success(message):
-    __base_log('\033[1;92m', message)
+    __base_log('\033[0;92m', message)
 
 
 def log_progress(message):
-    __base_log('\033[1;36m', message)
+    __base_log('\033[0;36m', message)
 
 
 def log_error(message):
-    __base_log('\033[1;31m', message)
+    __base_log('\033[0;31m', message)
 
 
 def log_boca(message):
@@ -149,13 +149,14 @@ def find_available_seat_id(es_nid):
         return None
 
     seat_id = None
-    for availableSeat in available_seats:
-        raw_available_seat = availableSeat.replace(' ', '').split(',')
-        seat_id = raw_available_seat[2]
-        break
-
-    if seat_id is None:
+    try:
+        for availableSeat in available_seats:
+            raw_available_seat = availableSeat.replace(' ', '').split(',')
+            seat_id = raw_available_seat[2]
+            break
+    except Exception as error:
         log_error("Something happened while processing the seat...")
+        log_error(error)
         log_error(str(available_seats))
         log_vamo_boke_and_close()
 
@@ -185,22 +186,23 @@ def post_reserve_seat(seat_id):
 
 
 def reserve_seat(seat_id):
-    reserved_seat_json = post_reserve_seat(seat_id)
-    if reserved_seat_json is None:
+    reserve_seat_json_response = post_reserve_seat(seat_id)
+    if reserve_seat_json_response is None:
         return False
 
-    result = reserved_seat_json['resultado']
+    result = reserve_seat_json_response['resultado']
     if result == 'OK':
         log_success('Seat reserved successfully!')
+        log_success('Checkout at ' + field_url)
         return True
 
     if result == 'ERROR':
-        description_error = reserved_seat_json['descripcionError']
+        description_error = reserve_seat_json_response['descripcionError']
         log_warning('Something happened while trying to reserve. Boca Message: "' + description_error + '"')
         wait_grandstand_refresh_rate()
         return False
 
-    log_error('Unexpected post_reserve_seat response: ' + str(reserved_seat_json))
+    log_error('Unexpected post_reserve_seat response: ' + str(reserve_seat_json_response))
     log_vamo_boke_and_close()
 
 
@@ -211,6 +213,15 @@ def log_vamo_boke():
 def log_vamo_boke_and_close():
     log_vamo_boke()
     exit(1)
+
+
+def start_bot():
+    is_seat_reserved = False
+    while not is_seat_reserved:
+        available_grandstand_id = find_available_grandstand_id()
+        available_seat_id = find_available_seat_id(available_grandstand_id)
+        if available_seat_id is not None:
+            is_seat_reserved = reserve_seat(available_seat_id)
 
 
 def play_song():
@@ -227,17 +238,7 @@ def play_song():
     pygame.quit()
 
 
-def run_bot():
-    is_seat_reserved = False
-    while not is_seat_reserved:
-        available_grandstand_id = find_available_grandstand_id()
-        available_seat_id = find_available_seat_id(available_grandstand_id)
-        if available_seat_id is not None:
-            is_seat_reserved = reserve_seat(available_seat_id)
-
-
 if __name__ == '__main__':
-    version = 'v1.1.0'
     log_boca('======================== BOKE BOT =========================')
     config = get_config()
 
@@ -281,7 +282,7 @@ if __name__ == '__main__':
 
     session = build_session()
 
-    run_bot()
+    start_bot()
 
     play_song()
     log_vamo_boke()
