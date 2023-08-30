@@ -249,7 +249,7 @@ if __name__ == '__main__':
 
     selected_grandstands = match_config['selectedGrandstands']
 
-    max_timeout_seconds_allowed = 64
+    max_timeout_seconds_allowed = 60
     requests_config = config['requests']
     base_url = 'https://soysocio.bocajuniors.com.ar/'
     field_url = base_url + 'comprar_plano_general.php?eNid=' + e_nid
