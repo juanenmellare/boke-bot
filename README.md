@@ -26,10 +26,10 @@
 - Open terminal and change directory to the 'boke_bot' folder.
 - Execute `source .venv/bin/activate` if you are not already in the env `.venv`.
 - Execute the following command:
-```bash
+```console
 python3 boke_bot.py 
 ```
-Note: Close the terminal or press `Control + C` to stop execution.
+_Note: Close the terminal or press `Control + C` to stop execution._
 
 ---
 
