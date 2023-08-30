@@ -1,4 +1,9 @@
 # Boke Bot 
+<img width="847" alt="Screenshot 2023-08-30 at 16 11 37" src="https://github.com/juanenmellare/boke-bot/assets/18221356/2b17a050-d14c-426c-b18f-70dc48f92f3f">
+
+
+<img width="1048" alt="Screenshot 2023-08-30 at 16 14 59" src="https://github.com/juanenmellare/boke-bot/assets/18221356/3b26db13-54cd-4f81-82af-d67a5277f94f">
+
 
 ## Requirements
 
