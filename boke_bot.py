@@ -102,8 +102,8 @@ def find_es_nid(grandstands_response_text):
 def find_available_grandstand_id():
     es_nid = None
     timeout = seconds_timeout
-    has_found_empty_seat_in_grandstand = False
-    while not has_found_empty_seat_in_grandstand:
+    has_found_available_grandstand = False
+    while not has_found_available_grandstand:
         log("Looking for grandstand with empty seats... ")
         try:
             grandstands_response = session.get(url=field_url, cookies=cookies, headers=headers, timeout=timeout)
@@ -116,11 +116,12 @@ def find_available_grandstand_id():
             wait_grandstand_refresh_rate()
             continue
 
-        if 'FILA DE ESPERA' in grandstands_response.text:
+        grandstands_response_text = grandstands_response.text
+        if 'FILA DE ESPERA' in grandstands_response_text:
             log('In the queue, after ' + str(queue_refresh_rate) + ' seconds will retry...')
             time.sleep(queue_refresh_rate)
             continue
-        elif '<!-- plano bombonera -->' not in grandstands_response.text:
+        elif '<!-- plano bombonera -->' not in grandstands_response_text:
             log_error("Page stadium not found, update the token of config.js or check the response below to analyze "
                       "if the webpage has any update...")
             log_error(str(grandstands_response.content))
@@ -128,11 +129,11 @@ def find_available_grandstand_id():
 
         timeout = seconds_timeout
 
-        es_nid = find_es_nid(grandstands_response.text)
+        es_nid = find_es_nid(grandstands_response_text)
         if es_nid is None:
             wait_grandstand_refresh_rate()
         else:
-            has_found_empty_seat_in_grandstand = True
+            has_found_available_grandstand = True
 
     return es_nid
 
