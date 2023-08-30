@@ -49,7 +49,7 @@ _Note: Close the terminal or press `Control + C` to stop execution._
     "userAgent": "",                  // The 'User-Agent' request header used in the browser.
     "token": ""                       // The "baas" cookie, obtained from the cookies after log in.
   },
-  "successSongFile": "dale_boca.mp3"  // Once the seat is reserved the boke bot will play beeps per second to alert the user.
+  "successSongFile": "dale_boca.mp3"  // Once the seat is reserved the boke bot will play a song that should be on root level and mp3 extension.
 }
 ```
 
