@@ -109,8 +109,7 @@ def find_available_grandstand_id():
             grandstands_response = session.get(url=field_url, cookies=cookies, headers=headers, timeout=timeout)
         except Exception as grandstands_response_error:
             log_error(str(grandstands_response_error))
-            if timeout < max_timeout_seconds_allowed:
-                timeout = timeout * 2
+            timeout = timeout * 2 if timeout < max_timeout_seconds_allowed else max_timeout_seconds_allowed
             log_warning(
                 'Something happened while trying to get the grandstands, in {0} seconds will try again with a '
                 'timeout of {1} seconds...'.format(str(grandstands_refresh_rate), str(timeout)))
