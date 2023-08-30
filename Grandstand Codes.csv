@@ -1,0 +1,61 @@
+Label,Code
+TS 1,TS1
+TS 2,TS2
+TS 3,TS3
+TS 4,TS4
+TS 5,TS5
+TN 1,TN1
+TN 2,TN2
+TN 3,TN3
+TN 4,TN4
+TN 5,TN5
+1er Piso norte,PPN1
+2do Piso norte,PPN3
+3er Piso norte,PPS3
+P,P
+I,I
+J,J
+F,F
+G,G
+H,H
+MD,MD
+MI,MI
+MC,MC
+M,SMV
+K,K
+CD,SCD
+CI,SCI
+AD,SAD
+AC,SAC
+AI,SAI
+BD,SBD
+BC,SBC
+BI,SBI
+DD,SDD
+DI,SDI
+Palco,PLCOS
+2 Norte,POP2N
+S Norte,POPSN
+3 Sur,POP3S
+2 Sur,POP2S
+S Sur,POPSS
+LID,LID
+LIC,LIC
+LII,LII
+LPD,LPD
+LPC,LPC
+LPI,LPI
+LD,LD
+LV,LV
+Sur3,PRS3
+Sur2,PRS2
+Sur1,PRS1
+Nor1,PRN1
+Nor2,PRN2
+Nor3,PRN3
+Palcos VIP N,PLCVN
+Palcos VIP S,PLCVS
+Pic Pref,PLCPREF
+1er Piso sur,PPS1
+2do Piso sur,PPS2
+3er Piso sur,PPS3
