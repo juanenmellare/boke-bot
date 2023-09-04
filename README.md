@@ -11,7 +11,7 @@
 
 ## Setup (only once)
 
-- Open terminal and check python version with `python3 –version`.
+- Open terminal and check python version with `python3 -–version`.
 - Change directory to the 'boke_bot' folder, e.g.: `cd .../boke_bot`.
 - Execute `python3 -m venv .venv`
 - Execute `source .venv/bin/activate`
