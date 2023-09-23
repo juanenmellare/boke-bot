@@ -86,24 +86,28 @@ def wait_grandstand_refresh_rate():
     time.sleep(grandstands_refresh_rate)
 
 
-def log_grandstand_available(grandstand_name):
-    log_progress('Grandstand ' + grandstand_name + ' available...')
-
-
 def find_es_nid(grandstands_response_text):
     es_nid = None
     available_grandstands = re.findall("(?<=enableSection\", ).*?(?=\))", grandstands_response_text)
-    for available_grandstand in available_grandstands:
-        raw_grandstand_data = available_grandstand.replace(' ', '').replace('"', '')
-        grandstand_data = raw_grandstand_data.split(',')
-        es_nid_candidate = grandstand_data[0]
-        grandstand_name = grandstand_data[1]
-        if (selected_grandstands and grandstand_name in selected_grandstands) or not selected_grandstands:
-            es_nid = es_nid_candidate
-            log_grandstand_available(grandstand_name)
-            break
-        else:
-            log_warning('Grandstand ' + grandstand_name + ' available, but not in the selected list...')
+    try:
+        for available_grandstand in available_grandstands:
+            raw_grandstand_data = available_grandstand.replace(' ', '').replace('"', '')
+            grandstand_data = raw_grandstand_data.split(',')
+            es_nid_candidate = grandstand_data[0]
+            grandstand_code = grandstand_data[1]
+            base_grandstand_available_message = 'Grandstand ' + grandstand_code + ' available'
+            is_in_selected_grandstands = selected_grandstands and grandstand_code in selected_grandstands
+            if is_in_selected_grandstands or not selected_grandstands:
+                es_nid = es_nid_candidate
+                log_progress(base_grandstand_available_message+'...')
+                break
+            else:
+                log_warning(base_grandstand_available_message + ', but not in the selected list...')
+    except Exception as error:
+        log_error("Something happened while processing the grandstand...")
+        log_error(str(available_grandstands))
+        log_error(str(error))
+        log_vamo_boke_and_close()
 
     return es_nid
 
@@ -113,7 +117,7 @@ def find_available_grandstand_id():
     timeout = seconds_timeout
     has_found_available_grandstand = False
     while not has_found_available_grandstand:
-        log("Looking for grandstand with empty seats... ")
+        log("Looking for grandstands with empty seats... ")
         try:
             grandstands_response = session.get(url=grandstand_url, timeout=timeout)
         except Exception as grandstands_response_error:
