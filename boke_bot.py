@@ -92,7 +92,7 @@ def find_es_nid(grandstands_response_text):
             else:
                 log_warning(base_grandstand_available_message + ', but not in the selected list...')
     except Exception as error:
-        log_error("Something happened while processing the grandstand...")
+        log_error("Something happened while processing the grandstands...")
         log_error(str(available_grandstands))
         log_error(str(error))
         log_vamo_boke_and_close()
@@ -156,7 +156,7 @@ def find_available_seat_id(es_nid):
             seat_id = raw_available_seat[2]
             break
     except Exception as error:
-        log_error("Something happened while processing the seat...")
+        log_error("Something happened while processing the seats...")
         log_error(str(available_seats))
         log_error(str(error))
         log_vamo_boke_and_close()
