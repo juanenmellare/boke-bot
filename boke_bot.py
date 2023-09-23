@@ -64,19 +64,7 @@ def build_session():
     session_candidate = requests.Session()
     session_candidate.verify = False
     session_candidate.trust_env = False
-    cookies = {
-        "firstSessionLogin": "true",
-        "baas": token
-    }
     session_candidate.cookies = cookies
-    user_agent = requests_config['userAgent']
-    headers = {
-        "Cache-Control": "no-store, must-revalidate, max-age=0",
-        "Connection": "Keep-Alive",
-        "Content-Encoding": "gzip",
-        "Content-Type": "text/html;charset=ISO-8859-1",
-        "User-Agent": user_agent
-    }
     session_candidate.headers = headers
 
     return session_candidate
@@ -183,7 +171,7 @@ def post_sells_api(api_endpoint, json_request):
         'jsonRequest': json_request,
         'api': 'ventas/' + api_endpoint
     }
-    request_headers = session.headers | {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+    request_headers = headers | {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
 
     try:
         response = session.post(check_seat_availability_url, headers=request_headers, data=request_data)
@@ -207,6 +195,7 @@ def reserve_seat(seat_id):
     if result == 'OK':
         log_success('Seat reserved successfully!')
         log_success('Checkout at ' + grandstand_url)
+        play_song()
         return True
 
     if result == 'ERROR':
@@ -279,9 +268,22 @@ if __name__ == '__main__':
         log_error('Missing "token" value in the request config.json')
         log_vamo_boke_and_close()
 
+    cookies = {
+        "firstSessionLogin": "true",
+        "baas": token
+    }
+
+    user_agent = requests_config['userAgent']
+    headers = {
+        "Cache-Control": "no-store, must-revalidate, max-age=0",
+        "Connection": "Keep-Alive",
+        "Content-Encoding": "gzip",
+        "Content-Type": "text/html;charset=ISO-8859-1",
+        "User-Agent": user_agent
+    }
+
     session = build_session()
 
     start_bot()
 
-    play_song()
     log_vamo_boke()
