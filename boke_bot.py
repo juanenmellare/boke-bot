@@ -1,11 +1,12 @@
-import time
-import re
 import json
-import urllib3
-import requests
-import signal
-from datetime import datetime
 import os
+import re
+import signal
+import time
+from datetime import datetime
+
+import requests
+import urllib3
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
@@ -87,7 +88,7 @@ def find_es_nid(grandstands_response_text):
             is_in_selected_grandstands = selected_grandstands and grandstand_code in selected_grandstands
             if is_in_selected_grandstands or not selected_grandstands:
                 es_nid = es_nid_candidate
-                log_progress(base_grandstand_available_message+'...')
+                log_progress(base_grandstand_available_message + '...')
                 break
             else:
                 log_warning(base_grandstand_available_message + ', but not in the selected list...')
@@ -123,7 +124,7 @@ def find_available_grandstand_id():
             time.sleep(queue_refresh_rate)
             continue
         elif '<!-- plano bombonera -->' not in grandstands_response_text:
-            log_error("Page stadium not found, update the token of config.js or check the response below to analyze "
+            log_error("Grandstands not found, update the token of config.js or check the response below to analyze "
                       "if the webpage has any update...")
             log_error(str(grandstands_response.content))
             log_vamo_boke_and_close()
@@ -285,5 +286,4 @@ if __name__ == '__main__':
     session = build_session()
 
     start_bot()
-
     log_vamo_boke()
