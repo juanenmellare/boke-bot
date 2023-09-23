@@ -64,6 +64,20 @@ def build_session():
     session_candidate = requests.Session()
     session_candidate.verify = False
     session_candidate.trust_env = False
+    cookies = {
+        "firstSessionLogin": "true",
+        "baas": token
+    }
+    session_candidate.cookies = cookies
+    user_agent = requests_config['userAgent']
+    headers = {
+        "Cache-Control": "no-store, must-revalidate, max-age=0",
+        "Connection": "Keep-Alive",
+        "Content-Encoding": "gzip",
+        "Content-Type": "text/html;charset=ISO-8859-1",
+        "User-Agent": user_agent
+    }
+    session_candidate.headers = headers
 
     return session_candidate
 
@@ -84,17 +98,12 @@ def find_es_nid(grandstands_response_text):
         grandstand_data = raw_grandstand_data.split(',')
         es_nid_candidate = grandstand_data[0]
         grandstand_name = grandstand_data[1]
-        if selected_grandstands:
-            if grandstand_name in selected_grandstands:
-                es_nid = es_nid_candidate
-                log_grandstand_available(grandstand_name)
-                break
-            else:
-                log_warning('Grandstand ' + grandstand_name + ' available, but not in the selected list...')
-        else:
+        if (selected_grandstands and grandstand_name in selected_grandstands) or not selected_grandstands:
             es_nid = es_nid_candidate
             log_grandstand_available(grandstand_name)
             break
+        else:
+            log_warning('Grandstand ' + grandstand_name + ' available, but not in the selected list...')
 
     return es_nid
 
@@ -106,7 +115,7 @@ def find_available_grandstand_id():
     while not has_found_available_grandstand:
         log("Looking for grandstand with empty seats... ")
         try:
-            grandstands_response = session.get(url=field_url, cookies=cookies, headers=headers, timeout=timeout)
+            grandstands_response = session.get(url=grandstand_url, timeout=timeout)
         except Exception as grandstands_response_error:
             log_error(str(grandstands_response_error))
             timeout = timeout * 2 if timeout < max_timeout_seconds_allowed else max_timeout_seconds_allowed
@@ -140,7 +149,7 @@ def find_available_grandstand_id():
 
 def find_available_seat_id(es_nid):
     seats_url_with_es_nid = seats_url + es_nid
-    seats_response = session.get(url=seats_url_with_es_nid, cookies=cookies, headers=headers)
+    seats_response = session.get(url=seats_url_with_es_nid)
 
     available_seats = re.findall("(?<=updateLocation\", ).*?(?=\))", seats_response.text)
     if not available_seats:
@@ -165,16 +174,15 @@ def find_available_seat_id(es_nid):
     return seat_id
 
 
-def post_sells_api(api_endpoint, seat_id):
+def post_sells_api(api_endpoint, json_request):
     request_data = {
-        'jsonRequest': "{\"eventoUbicacionNid\": \"" + str(seat_id) + "\"}",
+        'jsonRequest': json_request,
         'api': 'ventas/' + api_endpoint
     }
-    request_headers = headers | {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
+    request_headers = session.headers | {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'}
 
     try:
-        response = session.post(check_seat_availability_url, headers=request_headers, cookies=cookies,
-                                data=request_data)
+        response = session.post(check_seat_availability_url, headers=request_headers, data=request_data)
         return response.json()
     except Exception as error:
         log_error(error)
@@ -182,7 +190,8 @@ def post_sells_api(api_endpoint, seat_id):
 
 
 def post_reserve_seat(seat_id):
-    return post_sells_api('reservar_ubicacion', seat_id)
+    json_request = "{\"eventoUbicacionNid\": \"" + str(seat_id) + "\"}"
+    return post_sells_api('reservar_ubicacion', json_request)
 
 
 def reserve_seat(seat_id):
@@ -193,7 +202,7 @@ def reserve_seat(seat_id):
     result = reserve_seat_json_response['resultado']
     if result == 'OK':
         log_success('Seat reserved successfully!')
-        log_success('Checkout at ' + field_url)
+        log_success('Checkout at ' + grandstand_url)
         return True
 
     if result == 'ERROR':
@@ -253,7 +262,7 @@ if __name__ == '__main__':
     max_timeout_seconds_allowed = 60
     requests_config = config['requests']
     base_url = 'https://soysocio.bocajuniors.com.ar/'
-    field_url = base_url + 'comprar_plano_general.php?eNid=' + e_nid
+    grandstand_url = base_url + 'comprar_plano_general.php?eNid=' + e_nid
     seats_url = base_url + 'comprar_plano_asiento.php?eNid=' + e_nid + '&esNid='
     check_seat_availability_url = base_url + 'curl_client_request.php'
 
@@ -265,20 +274,6 @@ if __name__ == '__main__':
     if not token:
         log_error('Missing "token" value in the request config.json')
         log_vamo_boke_and_close()
-
-    cookies = {
-        "firstSessionLogin": "true",
-        "baas": token
-    }
-
-    user_agent = requests_config['userAgent']
-    headers = {
-        "Cache-Control": "no-store, must-revalidate, max-age=0",
-        "Connection": "Keep-Alive",
-        "Content-Encoding": "gzip",
-        "Content-Type": "text/html;charset=ISO-8859-1",
-        "User-Agent": user_agent
-    }
 
     session = build_session()
 

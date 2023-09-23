@@ -1,20 +1,17 @@
 # Boke Bot 
-<img width="847" alt="Screenshot 2023-08-30 at 16 11 37" src="https://github.com/juanenmellare/boke-bot/assets/18221356/2b17a050-d14c-426c-b18f-70dc48f92f3f">
 
+Nowadays, the club adherents (people who cannot access the club membership due to the limit available) can only get tickets when the members release their seats but these are immediately taken by other bots. To compete against these bots they asked me to create one, so I had to come up with a bot maybe even faster than the ones that already exist.
 
-<img width="1048" alt="Screenshot 2023-08-30 at 16 14 59" src="https://github.com/juanenmellare/boke-bot/assets/18221356/3b26db13-54cd-4f81-82af-d67a5277f94f">
+After a short investigation I discovered that some bots work directly on the browser (like Chrome), they execute the same actions that a normal user would do but extremely quickly either using selectors like ids and classes or moving the mouse. 
 
-
+After doing this, I began to analyze the problem, so I started to replicate the actions of a normal user to understand how the flow to reserve a match seat from the club website works, how it represents the views, what is stored in the browser and how the interface interacts with the user, all this to reverse engineer its operation.
 ## Requirements
 
 - Python 3.11 or higher (https://www.python.org/downloads/)
 
 ## Setup (only once)
 
-- Open terminal and check python version with `python3 -–version`.
-- Change directory to the 'boke_bot' folder, e.g.: `cd .../boke_bot`.
-- Execute `python3 -m venv .venv`
-- Execute `source .venv/bin/activate`
+- Open terminal and check python version with `python3 –-version`.
 - Execute `pip3 install -r requirements.txt`.
 
 ## Each time before use
