@@ -1,3 +1,6 @@
+Make the repository public, as Boca has deprecated their website and introduced a new app for ticketing.
+
+---
 # Boke Bot 
 
 Nowadays, the club adherents (people who cannot access the club membership due to the limit available) can only get tickets when the members release their seats but these are immediately taken by other bots. To compete against these bots they asked me to create one, so I had to come up with a bot maybe even faster than the ones that already exist.
