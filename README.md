@@ -7,7 +7,7 @@ Nowadays, the club adherents (people who cannot access the club membership due t
 
 After a short investigation I discovered that some bots work directly on the browser (like Chrome), they execute the same actions that a normal user would do but extremely quickly either using selectors like ids and classes or moving the mouse. 
 
-After doing this, I began to analyze the problem, so I started to replicate the actions of a normal user to understand how the flow to reserve a match seat from the club website works, how it represents the views, what is stored in the browser and how the interface interacts with the user, all this to reverse engineer its operation.
+After doing this, I began to analyze the problem, so I started to replicate the actions of a normal user to understand how the flow to reserve a match seat from the club website works, how it represents the views, what is stored in the browser and how the interface interacts with the user, all this to reverse engineer its operation. Finally came up with a solution that simulates the behaviour of normal user to avoid a high or harmful load on the server resources that can be used just with one person at a time with low RPM.
 
 
 <img width="847" alt="Screenshot 2023-08-30 at 16 11 37" src="https://github.com/juanenmellare/boke-bot/assets/18221356/2b17a050-d14c-426c-b18f-70dc48f92f3f">
